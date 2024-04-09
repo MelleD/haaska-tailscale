@@ -1,4 +1,4 @@
-FROM python:3.10-buster as builder
+FROM python:3.10.4-buster as builder
 WORKDIR /app
 COPY ./haaska/haaska.py .
 COPY ./haaska/config/config.json.sample ./config.json
