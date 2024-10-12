@@ -16,11 +16,17 @@ Currently it uses a fork of haaska in order to use environnment variables instea
 - https://github.com/MelleD 
 
 ## Setup
+### Step 1: Publish the docker image to AWS ECR
+1. Go to Settings -> Secrets and variables -> Actions and setup **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY** as Github encrypted secrets.
+2. Select Actions.
+3. Select "ci" on the left.
+4. Click "Run workflow".
+5. After successful run, the "ha-lambda-tailscale" repository should appear in the AWS ECR including the published image "latest.
 
-### Step 1: Follow the haaska wiki until you reach "Setting up AWS Lambda - Part 1"
+### Step 2: Follow the haaska wiki until you reach "Setting up AWS Lambda - Part 1"
 https://github.com/mike-grant/haaska/wiki/Setting-up-haaska
 
-### Step 2: Create AWS Lambda function
+### Step 3: Create AWS Lambda function
 1. Login to AWS and click on the Services button at the top left. Look for the "Compute" section, and click on "Lambda".
 3. Click "Create function" in the upper right.
 4. Select the "Container image" tile.
@@ -33,7 +39,7 @@ https://github.com/mike-grant/haaska/wiki/Setting-up-haaska
 11. Click "Create function" in the bottom right.
 12. The "Function designer" window should open.
 
-### Step 3: Set up the AWS Lambda function
+### Step 4: Set up the AWS Lambda function
 1. In the Function designer view click "Add trigger".
 2. Select "Alexa" as source.
 3. Select the "Alexa Smart Home" tile.
@@ -56,8 +62,8 @@ https://github.com/mike-grant/haaska/wiki/Setting-up-haaska
 
    I advise to limit the concurrency of the Lambda function (e.g. "5") in order not to reach the Tailscale machine limit depending on your plan
 
-### Step 4: Continue with the haaska wiki at "Linking AWS Lambda to Alexa Skills Kit"
+### Step 5: Continue with the haaska wiki at "Linking AWS Lambda to Alexa Skills Kit"
 https://github.com/mike-grant/haaska/wiki/Setting-up-haaska#linking-aws-lambda-to-alexa-skills-kit
 
-### Step 5: Testing. Follow the haaska wiki "Testing Haaska"
+### Step 6: Testing. Follow the haaska wiki "Testing Haaska"
 https://github.com/mike-grant/haaska/wiki/Testing-haaska
