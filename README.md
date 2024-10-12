@@ -10,6 +10,11 @@ Currently it uses a fork of haaska in order to use environnment variables instea
 
 **Requirement**: The [HA Tailscale Add-on](https://github.com/hassio-addons/addon-tailscale) installed and configured
 
+## Big thanks to
+- https://github.com/mike-grant
+- https://github.com/tieum
+- https://github.com/MelleD 
+
 ## Setup
 
 ### Step 1: Follow the haaska wiki until you reach "Setting up AWS Lambda - Part 1"
