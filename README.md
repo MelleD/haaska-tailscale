@@ -10,39 +10,60 @@ Currently it uses a fork of haaska in order to use environnment variables instea
 
 **Requirement**: The [HA Tailscale Add-on](https://github.com/hassio-addons/addon-tailscale) installed and configured
 
-The lambda function needs the 3 env vars:
-- **HA_TOKEN**
-- **HA_URL**
-- **TAILSCALE_AUTHKEY** (see https://tailscale.com/kb/1113/aws-lambda/)
+## Big thanks to
+- https://github.com/mike-grant
+- https://github.com/tieum
+- https://github.com/MelleD 
 
-![](img/lambdaenv.png)
+## Setup
+### Step 1: Publish the docker image to AWS ECR
+1. Go to Settings -> Secrets and variables -> Actions and setup **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY** as Github encrypted secrets.
+2. Select Actions.
+3. Select "ci" on the left.
+4. Click "Run workflow".
+5. After successful run, the "ha-lambda-tailscale" repository should appear in the AWS ECR including the published image "latest.
 
-I advise to limit the concurrency of the Lambda function (e.g. "5") in order not to reach the Tailscale machine limit depending on your plan
+### Step 2: Follow the haaska wiki until you reach "Setting up AWS Lambda - Part 1"
+https://github.com/mike-grant/haaska/wiki/Setting-up-haaska
 
+### Step 3: Create AWS Lambda function
+1. Login to AWS and click on the Services button at the top left. Look for the "Compute" section, and click on "Lambda".
+3. Click "Create function" in the upper right.
+4. Select the "Container image" tile.
+5. Enter a function name, e.g. haaska.
+6. Click "Browse images"
+7. Select the AWS ECR repository "ha-lambda-tailscale"
+8. Under "Images" select the image with tag "latest". This image was published previously by the github workflow for you.
+9. Click "Change default execution role" and select "Use existing role".
+10. Select the former created "lambda_basic_execution" role.
+11. Click "Create function" in the bottom right.
+12. The "Function designer" window should open.
 
-## Account Linking
+### Step 4: Set up the AWS Lambda function
+1. In the Function designer view click "Add trigger".
+2. Select "Alexa" as source.
+3. Select the "Alexa Smart Home" tile.
+4. Paste the "Skill ID" from the Alexa Developer Console window (e.g. amzn1.ask.skill.xxxxxxx).
+5. Click Add in the bottom right.
+6. The "Alexa" trigger should now show up and the "Configuration" tab should be selected.
+7. Click "Environment variables" on the left.
+8. Click on "Edit and then on "Add environment variable" three times to add the following variables that the lambda function needs:
+   
+   | ENV                       | Type     | Description                                           |
+   | ------------------------- | -------- | ----------------------------------------------------- |
+   | HA_TOKEN                  | string   | The long living HA token                              |
+   | HA_URL                    | string   | **Important the TAILSCALE ip from HA** e.g http://{tailscale-ha-ip}:8123. Should be start with 100.xxx.xxx.xxx |
+   | TAILSCALE_AUTHKEY        	| string   | The ephemeral key set up in tailscale web ui. Should be start with tskey-auth-xxxxx (see https://tailscale.com/kb/1113/aws-lambda/) |
 
-The only moment you need to expose your HA instance is during the setup when you do the [Account Linking part](https://www.home-assistant.io/integrations/alexa.smart_home/#account-linking),  (Right before the *Enable to use* part)
+   **HINT: How to create the TAILSCALE_AUTHKEY:** Go to tailscale web ui -> Settings -> Keys - Click "Generate auth key..."
+   ![](img/tailscale_generate_authkey.png)
+   
+   ![](img/lambdaenv.png)
 
-**However**, the token that your Alexa Skill will receive is only valid for **30 minutes** (see https://github.com/home-assistant/core/blob/master/homeassistant/auth/const.py#L4)
+   I advise to limit the concurrency of the Lambda function (e.g. "5") in order not to reach the Tailscale machine limit depending on your plan
 
-Dirty but working trick:
-- update the code for the server to store and respond with a 10 year valid token
-- restart HA
-- update your DNS to point HA instance, forward 443 port from the internet to it
-- do the Account Linking part
-- revert code modifications, restart HA
-- update your DNS to point to your **HA Tailscale IP**
-- remove port 443 forwarding
-- profit
+### Step 5: Continue with the haaska wiki at "Linking AWS Lambda to Alexa Skills Kit"
+https://github.com/mike-grant/haaska/wiki/Setting-up-haaska#linking-aws-lambda-to-alexa-skills-kit
 
-Following is an example with Hass.io to get the 10 year token with ssh
-```
-docker exec -it homeassistant bash
-sed -i  s/minutes=30/days=3650/   /usr/src/homeassistant/homeassistant/auth/const.py
-exit
-docker restart homeassistant
-```
-
-
-
+### Step 6: Testing. Follow the haaska wiki "Testing Haaska"
+https://github.com/mike-grant/haaska/wiki/Testing-haaska
